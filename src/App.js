@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import Nav from "./Nav"
+import Input from "./Mydiv"
+import List from './List'
+import axios from 'axios'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+    state={
+     list:[]
+    }
+    componentDidMount(){
+        axios.get("http://localhost:8080/todo").then(response =>{
+            this.setState({
+                list:response.data
+            })
+        })
+    }
+    addlist=(value)=>{
+        axios.post("http://localhost:8080/todo",{title:value}).then(success=>{ 
+       this.setState({
+           list:[...this.state.list,success.data]
+        })
+    })
+}
+delete=(id)=>{
+    axios.delete("http://localhost:8080/todo/"+id).then(success =>
+    this.setState({
+        list:this.state.list.filter(items=>items.id !== id)
+    }))
 }
 
+    render(){
+    return(
+        <div>
+            <Nav/>
+            <Input addlist={this.addlist}/>
+            <List items={this.state.list} handledelete={this.delete}/>
+
+</div>
+    )
+    }
+}
 export default App;
